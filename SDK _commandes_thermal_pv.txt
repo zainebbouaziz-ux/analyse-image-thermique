@@ -1,0 +1,266 @@
+==================================================
+DJI M3T THERMAL PIPELINE
+Installation et utilisation
+==================================================
+
+
+==================================================
+1) Aller dans le projet
+==================================================
+
+cd "C:\chemin\vers\thermal_pv"
+
+
+==================================================
+2) Création environnement virtuel
+==================================================
+
+python -m venv venv
+
+
+Activation :
+
+venv\Scripts\activate
+
+
+
+==================================================
+3) Installation dépendances Python
+==================================================
+
+python -m pip install --upgrade pip
+
+pip install -r requirements.txt
+
+
+
+==================================================
+4) Vérification ExifTool
+==================================================
+
+Commande :
+
+exiftool -ver
+
+
+Si un numéro apparaît :
+
+Exemple :
+13.40
+
+
+=> ExifTool est correctement installé.
+
+
+ExifTool est utilisé pour lire :
+
+- paramètres radiométriques DJI
+- emissivité
+- distance objet
+- humidité
+- température réfléchie
+- GPS
+
+
+
+==================================================
+5) Configuration DJI Thermal SDK
+==================================================
+
+Placer le chemin complet de dji_irp.exe :
+
+
+PowerShell :
+
+$env:DJI_IRP_EXE_PATH = "C:\chemin\vers\dji_irp.exe"
+
+
+
+Exemple :
+
+$env:DJI_IRP_EXE_PATH = "C:\DJI_Thermal_SDK\utility\bin\windows\release_x64\dji_irp.exe"
+
+
+
+Tester :
+
+dji_irp.exe -h
+
+
+
+Si l'aide apparaît :
+
+=> DJI Thermal SDK opérationnel
+
+
+
+==================================================
+6) Conversion image thermique DJI
+==================================================
+
+Conversion R-JPEG vers température par pixel :
+
+
+python main.py "C:\Users\msi\Desktop\stage2026\photogrammetry_pipeline\data\images_thermique\DJI_20260318103713_0001_T.JPG" --export npy csv --outdir resultats
+
+
+
+Sorties :
+
+resultats/
+
+    DJI_XXXX_T_temperature.npy
+
+    DJI_XXXX_T_temperature.csv
+
+
+
+==================================================
+7) Statistiques thermiques
+==================================================
+
+
+python main.py DJI_0001_T.JPG --export npy csv --outdir resultats
+
+
+
+Informations obtenues :
+
+- température minimale
+- température maximale
+- température moyenne
+- écart-type
+
+
+
+==================================================
+8) Température d'un pixel
+==================================================
+
+
+python main.py DJI_0001_T.JPG --pixel 320 256
+
+
+
+Résultat :
+
+Pixel (320,256)
+
+Température : XX °C
+
+
+
+==================================================
+9) Visualisation interactive
+==================================================
+
+
+python main.py DJI_0001_T.JPG --show
+
+
+
+Fonction :
+
+- affichage image thermique
+- clic sur pixel
+- température correspondante
+
+
+
+==================================================
+10) Détection points chauds PV
+==================================================
+
+
+Exemple seuil 45°C :
+
+
+python main.py DJI_0001_T.JPG --hotspot-threshold 45
+
+
+
+Résultat :
+
+- masque des pixels chauds
+- localisation des anomalies thermiques
+
+
+
+==================================================
+11) Vérification installation
+==================================================
+
+
+pip list
+
+
+
+Bibliothèques principales :
+
+numpy
+
+opencv-contrib-python
+
+Pillow
+
+pandas
+
+scipy
+
+plotly
+
+rasterio
+
+pyproj
+
+PyExifTool
+
+exifread
+
+
+
+==================================================
+Pipeline utilisé
+==================================================
+
+
+Image thermique DJI M3T
+(R-JPEG radiométrique)
+
+          |
+
+          v
+
+ExifTool
+(récupération paramètres caméra)
+
+          |
+
+          v
+
+dji_irp.exe
+(DJI Thermal SDK officiel)
+
+          |
+
+          v
+
+Matrice température Float32
+(°C par pixel)
+
+          |
+
+          +----------------+
+
+          |                |
+
+          v                v
+
+       NPY / CSV       Analyse PV
+
+          |
+
+          v
+
+Visualisation thermique
+et détection hotspots
